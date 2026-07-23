@@ -23,3 +23,7 @@
 /.idea/
 /.vscode/
 /vendor/
+
+###> phpstan/phpstan ###
+phpstan.neon
+###< phpstan/phpstan ###

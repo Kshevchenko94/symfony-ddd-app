@@ -2,9 +2,10 @@
 
 namespace App\Domain\ActionVerification\Event;
 
+use App\Domain\Common\Event\DomainEventInterface;
 use DateTimeImmutable;
 
-class ActionCancelledEvent
+class ActionCancelledEvent implements DomainEventInterface
 {
     public function __construct(
         public string $id,

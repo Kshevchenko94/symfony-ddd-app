@@ -4,15 +4,19 @@ namespace App\Domain\ActionVerification\Entity;
 
 use App\Domain\ActionVerification\Event\ActionCancelledEvent;
 use App\Domain\ActionVerification\Event\ActionRejectedEvent;
-use App\Domain\ActionVerification\Event\ActionVerifiedEvent;
+use App\Domain\ActionVerification\Event\ActionApprovedEvent;
 use App\Domain\ActionVerification\ValueObject\ActionStatus;
 use App\Domain\ActionVerification\ValueObject\ActionType;
+use App\Domain\Common\Event\DomainEventInterface;
 use DateTimeImmutable;
 use DomainException;
 
 class CriticalAction
 {
     private DateTimeImmutable $createdAt;
+    /**
+     * @var array<DomainEventInterface>
+     */
     private array $domainEvents = [];
     public function __construct(
         public readonly string $id,
@@ -20,7 +24,7 @@ class CriticalAction
         private ActionType $type,
         private ActionStatus $status,
         private ?DateTimeImmutable $processedAt = null,
-        private ?string $rejectionReason,
+        private ?string $rejectionReason = null,
     )
     {
         $this->createdAt = new DateTimeImmutable();
@@ -38,7 +42,7 @@ class CriticalAction
 
         $this->status = ActionStatus::APPROVED;
         $this->processedAt = new DateTimeImmutable();
-        $this->domainEvents[] = new ActionVerifiedEvent(
+        $this->domainEvents[] = new ActionApprovedEvent(
             $this->id,
             $this->userId,
             new DateTimeImmutable()
@@ -104,6 +108,9 @@ class CriticalAction
         return $this->rejectionReason;
     }
 
+    /**
+     * @return array<DomainEventInterface>
+     */
     public function pullDomainEvents(): array
     {
         $events = $this->domainEvents;
