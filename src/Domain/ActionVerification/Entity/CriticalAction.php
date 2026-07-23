@@ -11,17 +11,24 @@ use DomainException;
 
 class CriticalAction
 {
+    private DateTimeImmutable $createdAt;
     private array $domainEvents = [];
     public function __construct(
         public readonly string $id,
         public readonly string $userId,
         private ActionType $type,
         private ActionStatus $status,
-        private DateTimeImmutable $createdAt,
         private ?DateTimeImmutable $processedAt = null,
         private ?string $rejectionReason,
     )
-    {}
+    {
+        $this->createdAt = new DateTimeImmutable();
+    }
+
+    public function __destruct()
+    {
+        $this->domainEvents = [];
+    }
 
     public function approve(): void
     {
@@ -66,6 +73,21 @@ class CriticalAction
     public function getType(): ActionType
     {
         return $this->type;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getProcessedAt(): ?\DateTimeImmutable
+    {
+        return $this->processedAt;
+    }
+
+    public function getRejectionReason(): ?string
+    {
+        return $this->rejectionReason;
     }
 
     public function pullDomainEvents(): array
