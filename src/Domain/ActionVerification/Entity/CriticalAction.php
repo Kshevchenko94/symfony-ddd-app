@@ -25,11 +25,6 @@ class CriticalAction
         $this->createdAt = new DateTimeImmutable();
     }
 
-    public function __destruct()
-    {
-        $this->domainEvents = [];
-    }
-
     public function approve(): void
     {
         if ($this->status === ActionStatus::REJECTED) {
