@@ -11,21 +11,17 @@ use DomainException;
 
 class CriticalAction
 {
-    private ActionStatus $status;
-    private DateTimeImmutable $createdAt;
-    private ?DateTimeImmutable $processedAt = null;
-    private ?string $rejectionReason = null;
     private array $domainEvents = [];
-
     public function __construct(
-        private readonly string $id,
-        private readonly string $userId,
-        private readonly ActionType $type,
+        public readonly string $id,
+        public readonly string $userId,
+        private ActionType $type,
+        private ActionStatus $status,
+        private DateTimeImmutable $createdAt,
+        private ?DateTimeImmutable $processedAt = null,
+        private ?string $rejectionReason,
     )
-    {
-        $this->status = ActionStatus::PENDING;
-        $this->createdAt = new DateTimeImmutable();
-    }
+    {}
 
     public function approve(): void
     {
@@ -61,23 +57,21 @@ class CriticalAction
             new DateTimeImmutable()
         );
     }
-    public function getId(): string { return $this->id; }
-    public function getUserId(): string { return $this->userId; }
-    public function getType(): ActionType { return $this->type; }
-    public function getStatus(): ActionStatus { return $this->status; }
-    public function getCreatedAt(): DateTimeImmutable
-    { return $this->createdAt; }
-    public function getProcessedAt(): ?DateTimeImmutable
-    { return $this->processedAt; }
-    public function getRejectionReason(): ?string { return $this->rejectionReason; }
 
-    public function getDomainEvents(): array
+    public function getStatus(): ActionStatus
     {
-        return $this->domainEvents;
+        return $this->status;
     }
 
-    public function clearDomainEvents(): void
+    public function getType(): ActionType
     {
+        return $this->type;
+    }
+
+    public function pullDomainEvents(): array
+    {
+        $events = $this->domainEvents;
         $this->domainEvents = [];
+        return $events;
     }
 }
