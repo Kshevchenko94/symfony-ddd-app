@@ -2,6 +2,7 @@
 
 namespace App\Domain\ActionVerification\Entity;
 
+use App\Domain\ActionVerification\Event\ActionCancelledEvent;
 use App\Domain\ActionVerification\Event\ActionRejectedEvent;
 use App\Domain\ActionVerification\Event\ActionVerifiedEvent;
 use App\Domain\ActionVerification\ValueObject\ActionStatus;
@@ -60,6 +61,24 @@ class CriticalAction
         );
     }
 
+    public function cancel(): void
+    {
+        if ($this->status !== ActionStatus::PENDING) {
+            throw new DomainException("Можно отменить только ожидающее действие");
+        }
+
+        $this->status = ActionStatus::CANCELLED;
+        $this->processedAt = new DateTimeImmutable();
+        $this->rejectionReason = 'Cancelled by user';
+
+        $this->domainEvents[] = new ActionCancelledEvent(
+            $this->id,
+            $this->userId,
+            'Cancelled by user',
+            new DateTimeImmutable()
+        );
+    }
+
     public function getStatus(): ActionStatus
     {
         return $this->status;
@@ -70,12 +89,12 @@ class CriticalAction
         return $this->type;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getProcessedAt(): ?\DateTimeImmutable
+    public function getProcessedAt(): ?DateTimeImmutable
     {
         return $this->processedAt;
     }
