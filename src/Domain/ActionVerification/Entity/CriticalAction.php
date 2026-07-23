@@ -5,25 +5,38 @@ namespace App\Domain\ActionVerification\Entity;
 use App\Domain\ActionVerification\Event\ActionCancelledEvent;
 use App\Domain\ActionVerification\Event\ActionRejectedEvent;
 use App\Domain\ActionVerification\Event\ActionApprovedEvent;
+use App\Domain\ActionVerification\Repository\CriticalActionRepositoryInterface;
 use App\Domain\ActionVerification\ValueObject\ActionStatus;
 use App\Domain\ActionVerification\ValueObject\ActionType;
 use App\Domain\Common\Event\DomainEventInterface;
 use DateTimeImmutable;
 use DomainException;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Uid\Uuid;
 
+#[ORM\Entity(repositoryClass: CriticalActionRepositoryInterface::class)]
+#[ORM\Table(name: 'critical_actions', schema: 'action_verification')]
 class CriticalAction
 {
+    #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $createdAt;
     /**
      * @var array<DomainEventInterface>
      */
     private array $domainEvents = [];
     public function __construct(
-        public readonly string $id,
+        #[ORM\Id]
+        #[ORM\Column(type: 'uuid')]
+        public readonly Uuid $id,
+        #[ORM\Column(type: 'string', length: 36)]
         public readonly string $userId,
+        #[ORM\Column(type: 'string', enumType: ActionType::class)]
         private ActionType $type,
+        #[ORM\Column(type: 'string', enumType: ActionStatus::class)]
         private ActionStatus $status,
+        #[ORM\Column(type: 'datetime_immutable', nullable: true)]
         private ?DateTimeImmutable $processedAt = null,
+        #[ORM\Column(type: 'string', length: 255, nullable: true)]
         private ?string $rejectionReason = null,
     )
     {
