@@ -4,8 +4,6 @@ framework:
             messenger.bus.default:
                 middleware:
                     - 'App\Infrastructure\Messenger\Middleware\UnroutableMessageLoggerMiddleware'
-                    - 'Symfony\Component\Messenger\Middleware\FailedMessageProcessingMiddleware'
-                    - 'Symfony\Component\Messenger\Middleware\SendMessageMiddleware'
         failure_transport: failed
 
         transports:
