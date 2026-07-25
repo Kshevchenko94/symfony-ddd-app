@@ -12,5 +12,12 @@ readonly class ActionRejectedEvent implements DomainEventInterface
         public string $userId,
         public string $reason,
         public DateTimeImmutable $createdAt,
-    ) {}
+    )
+    {
+    }
+
+    public function getRoutingKey(): string
+    {
+        return 'action_verification.rejected';
+    }
 }

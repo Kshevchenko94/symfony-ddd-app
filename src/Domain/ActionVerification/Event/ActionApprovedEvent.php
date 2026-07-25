@@ -12,4 +12,9 @@ readonly class ActionApprovedEvent implements DomainEventInterface
         public string $userId,
         public DateTimeImmutable $createdAt,
     ) {}
+
+    public function getRoutingKey(): string
+    {
+        return 'action_verification.approved';
+    }
 }

@@ -10,8 +10,6 @@ framework:
             async:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 options:
-                    confirm_enabled: true  # ✅ Включаем подтверждения
-                    confirm_timeout: 3.0   # Ждем подтверждения 3 секунды
                     exchange:
                         name: 'app_events'      # Имя обменника (Exchange)
                         type: 'topic'           # Тип обменника: topic позволяет использовать wildcard (# и *)
@@ -23,7 +21,7 @@ framework:
                             # Ключи привязки (Binding Keys).
                             # Очередь будет забирать только те сообщения, routing key которых совпадает с этим паттерном
                             binding_keys:
-                                - 'App.Domain.ActionVerification.Event.*'    # Ловим ВСЕ события, начинающиеся с "action."
+                                - 'action_verification.#'    # Ловим ВСЕ события, начинающиеся с "action."
                             arguments:
                                 'x-dead-letter-exchange': 'dlx'
                                 'x-dead-letter-routing-key': 'dlq'
@@ -56,9 +54,6 @@ framework:
 
             # 2. Синхронный транспорт (полезен для локальной разработки или тестов, чтобы не поднимать RabbitMQ)
             sync: 'sync://'
-
-        routing:
-            'App\Domain\ActionVerification\Event\*': async
 
             # Пример: если бы у нас было специфичное событие, мы могли бы направить его в конкретную очередь:
             # 'App\Domain\ActionVerification\Event\ActionRejectedEvent': async
