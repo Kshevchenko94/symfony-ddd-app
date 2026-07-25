@@ -1,0 +1,66 @@
+framework:
+    messenger:
+        buses:
+            messenger.bus.default:
+                middleware:
+                    - 'App\Infrastructure\Messenger\Middleware\UnroutableMessageLoggerMiddleware'
+                    - 'Symfony\Component\Messenger\Middleware\FailedMessageProcessingMiddleware'
+                    - 'Symfony\Component\Messenger\Middleware\SendMessageMiddleware'
+        failure_transport: failed
+
+        transports:
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    confirm_enabled: true  # ✅ Включаем подтверждения
+                    confirm_timeout: 3.0   # Ждем подтверждения 3 секунды
+                    exchange:
+                        name: 'app_events'      # Имя обменника (Exchange)
+                        type: 'topic'           # Тип обменника: topic позволяет использовать wildcard (# и *)
+                        arguments:
+                            'alternate-exchange': 'unrouted_exchange'
+                    queues:
+                        # Имя очереди, которая будет создана в RabbitMQ
+                        action_events_queue:
+                            # Ключи привязки (Binding Keys).
+                            # Очередь будет забирать только те сообщения, routing key которых совпадает с этим паттерном
+                            binding_keys:
+                                - 'App.Domain.ActionVerification.Event.*'    # Ловим ВСЕ события, начинающиеся с "action."
+                            arguments:
+                                'x-dead-letter-exchange': 'dlx'
+                                'x-dead-letter-routing-key': 'dlq'
+
+            unrouted:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: 'unrouted_exchange'
+                        type: 'fanout' # Просто собираем всё
+                    queues:
+                        unrouted_messages_queue: # Здесь будут ВСЕ потерянные сообщения
+                            arguments:
+                                'x-message-ttl': 604800000 # Хранить 7 дней
+
+            failed:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: 'dlx'               # Имя обменника, который мы указали выше
+                        type: 'direct'            # Для DLQ обычно используют тип direct
+                    queues:
+                        failed_messages_queue: # Имя очереди, где будут лежать упавшие сообщения
+                            binding_keys:
+                                - 'dlq'           # Должен совпадать с x-dead-letter-routing-key выше!
+                            arguments:
+                                # Опционально: можно настроить, чтобы сообщения из DLQ тоже куда-то улетали,
+                                # но обычно это конечная точка.
+                                'x-message-ttl': 604800000 # Хранить 7 дней (в миллисекундах)
+
+            # 2. Синхронный транспорт (полезен для локальной разработки или тестов, чтобы не поднимать RabbitMQ)
+            sync: 'sync://'
+
+        routing:
+            'App\Domain\ActionVerification\Event\*': async
+
+            # Пример: если бы у нас было специфичное событие, мы могли бы направить его в конкретную очередь:
+            # 'App\Domain\ActionVerification\Event\ActionRejectedEvent': async
