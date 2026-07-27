@@ -55,5 +55,8 @@ framework:
             # 2. Синхронный транспорт (полезен для локальной разработки или тестов, чтобы не поднимать RabbitMQ)
             sync: 'sync://'
 
+        routing:
+            'App\Domain\ActionVerification\Event\*': async
+
             # Пример: если бы у нас было специфичное событие, мы могли бы направить его в конкретную очередь:
             # 'App\Domain\ActionVerification\Event\ActionRejectedEvent': async

@@ -4,6 +4,7 @@ namespace App\Domain\ActionVerification\Event;
 
 use App\Domain\Common\Event\DomainEventInterface;
 use DateTimeImmutable;
+use DateTimeInterface;
 
 readonly class ActionRejectedEvent implements DomainEventInterface
 {
@@ -19,5 +20,14 @@ readonly class ActionRejectedEvent implements DomainEventInterface
     public function getRoutingKey(): string
     {
         return 'action_verification.rejected';
+    }
+
+    public function toArray(): array {
+        return [
+            'id' => $this->id,
+            'user_id' => $this->userId,
+            'reason' => $this->reason,
+            'created_at' => $this->createdAt->format(DateTimeInterface::ATOM),
+        ];
     }
 }

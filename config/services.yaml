@@ -10,3 +10,8 @@ services:
 
     App\:
         resource: '../src/'
+
+    Redis:
+        factory: [ 'Symfony\Component\Cache\Adapter\RedisAdapter', 'createConnection' ]
+        arguments:
+            - '%env(REDIS_URL)%'

@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 5s # Как часто забирать метрики (для тестов ставим 5 сек)
+
+scrape_configs:
+  - job_name: 'symfony-app'
+    metrics_path: '/api/metrics' # Эндпоинт в твоем Symfony, который отдает метрики
+    static_configs:
+      - targets: ['web:80'] # Стучимся в контейнер с FrankenPHP
