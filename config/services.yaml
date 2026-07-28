@@ -11,7 +11,17 @@ services:
     App\:
         resource: '../src/'
 
-    Redis:
-        factory: [ 'Symfony\Component\Cache\Adapter\RedisAdapter', 'createConnection' ]
+    App\Infrastructure\Redis\RedisClientFactory:
         arguments:
-            - '%env(REDIS_URL)%'
+            $host: '%env(REDIS_HOST)%'
+            $port: '%env(int:REDIS_PORT)%'
+            $password: '%env(REDIS_PASSWORD)%'
+            $database: '%env(int:REDIS_DATABASE)%'
+
+    Redis:
+        class: Redis
+        factory: [ ' App\Infrastructure\Redis\RedisClientFactory', 'create' ]
+
+    app.redis.client:
+        alias: Redis
+        public: false
