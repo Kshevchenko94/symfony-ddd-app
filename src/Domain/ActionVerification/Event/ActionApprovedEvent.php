@@ -21,7 +21,8 @@ readonly class ActionApprovedEvent implements DomainEventInterface
         return 'action_verification.approved';
     }
 
-    public function toArray(): array {
+    public function toArray(): array
+    {
         return [
             'id' => $this->id,
             'user_id' => $this->userId,

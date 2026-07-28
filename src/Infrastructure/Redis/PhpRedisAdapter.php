@@ -21,12 +21,15 @@ final class PhpRedisAdapter implements CacheClientInterface
 
     public function hSet(string $key, array $data): void
     {
-        $this->redis->hSet($key, $data);
+        foreach ($data as $field => $value) {
+            $this->redis->hSet($key, (string)$field, (string)$value);
+        }
     }
 
     public function hGetAll(string $key): array
     {
-        return $this->redis->hGetAll($key) ?: [];
+        $result = $this->redis->hGetAll($key);
+        return $result === false ? [] : $result;
     }
 
     public function rPush(string $key, string $value): void
@@ -57,9 +60,9 @@ final class PhpRedisAdapter implements CacheClientInterface
 
     public function multi(int $mode = 0): self
     {
-        $clone = clone $this;
-        $clone->pipeline = $this->redis->multi($mode);
-        return $clone;
+        return clone($this, [
+            "pipeline" => $this->redis->multi($mode)
+        ]);
     }
 
     public function exec(): array

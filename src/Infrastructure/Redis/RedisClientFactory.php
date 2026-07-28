@@ -9,7 +9,7 @@ final readonly class RedisClientFactory
 {
     public function __construct(
         private string $host,
-        private string $port,
+        private string|int $port,
         private ?string $password = null,
         private int $database = 0,
         private float $timeout = 3.0,
@@ -21,7 +21,7 @@ final readonly class RedisClientFactory
     {
         $redis = new Redis();
 
-        $connected = $redis->pconnect($this->host, $this->port, $this->timeout);
+        $connected = $redis->pconnect($this->host, (int)$this->port, $this->timeout);
 
         if (!$connected) {
             throw new RuntimeException(

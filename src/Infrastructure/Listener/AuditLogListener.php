@@ -4,7 +4,9 @@ namespace App\Infrastructure\Listener;
 
 use App\Domain\Common\Event\DomainEventInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
+#[AsEventListener]
 readonly class AuditLogListener
 {
     public function __construct(

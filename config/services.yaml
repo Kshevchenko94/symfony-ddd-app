@@ -18,9 +18,20 @@ services:
             $password: '%env(REDIS_PASSWORD)%'
             $database: '%env(int:REDIS_DATABASE)%'
 
+    App\Domain\Common\Cache\CacheClientInterface:
+        class: App\Infrastructure\Redis\PhpRedisAdapter
+        arguments:
+            $redis: '@Redis'
+
+    App\Infrastructure\Persistence\Pdo\DoctrinePdoProvider: ~
+
+    PDO:
+        class: PDO
+        factory: ['@App\Infrastructure\Persistence\Pdo\DoctrinePdoProvider', 'getNativePdo']
+
     Redis:
         class: Redis
-        factory: [ ' App\Infrastructure\Redis\RedisClientFactory', 'create' ]
+        factory: [ 'App\Infrastructure\Redis\RedisClientFactory', 'create' ]
 
     app.redis.client:
         alias: Redis

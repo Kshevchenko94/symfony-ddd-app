@@ -5,8 +5,10 @@ namespace App\Infrastructure\Listener;
 use App\Domain\Common\Cache\CacheClientInterface;
 use App\Domain\Common\Event\DomainEventInterface;
 use Redis;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Uid\Uuid;
 
+#[AsEventListener(event: DomainEventInterface::class)]
 readonly class OutboxListener
 {
     const INT ONE_DAY = 86400;
